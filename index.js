@@ -3,9 +3,11 @@ require("dotenv").config()
 const connectDB=require('./config/dbConfig')
 const UserRouter=require("./routes/UserRoute");
 const bodyParser = require('body-parser');
+const cors=require('cors')
 const app=express();
 //middleware json
 app.use(bodyParser.json());
+app.use(cors());
 app.get("/",(req,res)=>{
     res.send("Welcome to backend!!!!school project")
 })
