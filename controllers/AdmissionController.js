@@ -1,7 +1,7 @@
 const AdmissionModel = require("../models/AdmissionModel");
 const nodemailer = require("nodemailer");
 require("dotenv").config();
-
+console.log(process.env.ADMIN_EMAIL);
 const submitAdmission = async (req, res) => {
   try {
     const { studentName, parentName, email, phone, className } = req.body;
@@ -50,8 +50,10 @@ const submitAdmission = async (req, res) => {
       `,
     };
 
-    await transporter.sendMail(parentMailOptions); // sends to parent
-    await transporter.sendMail(adminMailOptions); // sends to admin
+    await Promise.all([
+      transporter.sendMail(parentMailOptions),
+      transporter.sendMail(adminMailOptions),
+    ]);
     return res.status(200).json({
       admission,
       message: "Form Submitted & Email Sent Successfully!",
