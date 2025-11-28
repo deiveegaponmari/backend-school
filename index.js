@@ -2,6 +2,7 @@ const express=require('express');
 require("dotenv").config()
 const connectDB=require('./config/dbConfig')
 const UserRouter=require("./routes/UserRoute");
+const AdmissionRoute=require("./routes/AdmissionRoute")
 const bodyParser = require('body-parser');
 const cors=require('cors')
 const app=express();
@@ -15,6 +16,8 @@ app.get("/",(req,res)=>{
 connectDB();
 //Routes
 app.use("/api/user",UserRouter)
+app.use("/api/admission",AdmissionRoute)
 app.listen(process.env.PORT,()=>{
     console.log(`server running successfully http://localhost:${process.env.PORT}`)
 })
+/* anandraj30986@gmail.com */
