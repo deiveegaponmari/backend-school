@@ -6,13 +6,13 @@ require("dotenv").config();
 //Register
 const RegisterUser = async (req, res) => {
   try {
-    const { userName, email, password } = req.body;
+    const { userName, email, password ,role} = req.body;
     const existingUser =await UserModel.findOne({ email });
    // console.log("existing user",existingUser);
     if (existingUser) {
       return res.status(400).json({ message: "User Already Exists" });
     }
-    const CreateUser = await UserModel.create({ userName, email, password });
+    const CreateUser = await UserModel.create({ userName, email, password ,role});
     return res.status(200).json({
       user: CreateUser,
       message: "User Registration Successfull!!!!",

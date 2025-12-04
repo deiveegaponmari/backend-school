@@ -6,6 +6,11 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    role:{
+      type:String,
+      enum:["Admin","User","Student","Parent"],
+      default:"User"
+    },
     email: {
       type: String,
       unique: true,
