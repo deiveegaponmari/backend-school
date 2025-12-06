@@ -4,6 +4,8 @@ const connectDB=require('./config/dbConfig')
 const UserRouter=require("./routes/UserRoute");
 const AdmissionRoute=require("./routes/AdmissionRoute")
 const HomeRoute=require("./routes/HomeRoute")
+const ParentRoute=require("./routes/ParentRoute")
+const AnnounceRoute=require('./routes/AnnouncementRoutes')
 const bodyParser = require('body-parser');
 const cors=require('cors')
 const app=express();
@@ -19,6 +21,8 @@ connectDB();
 app.use("/api/user",UserRouter)
 app.use("/api/admission",AdmissionRoute)
 app.use("/api/homeslide",HomeRoute)
+app.use('/api',ParentRoute)
+app.use("/api",AnnounceRoute)
 app.listen(process.env.PORT,()=>{
     console.log(`server running successfully http://localhost:${process.env.PORT}`)
 })
