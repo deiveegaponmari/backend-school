@@ -1,7 +1,7 @@
 const AdmissionModel = require("../models/AdmissionModel");
 const nodemailer = require("nodemailer");
 require("dotenv").config();
-console.log(process.env.ADMIN_EMAIL);
+//console.log(process.env.ADMIN_EMAIL);
 const submitAdmission = async (req, res) => {
   try {
     const { studentName, parentName, email, phone, className } = req.body;
