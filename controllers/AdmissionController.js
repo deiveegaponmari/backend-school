@@ -62,4 +62,6 @@ const submitAdmission = async (req, res) => {
     return res.status(500).json({ message: "Server Error", error });
   }
 };
-module.exports = submitAdmission;
+module.exports ={ 
+  submitAdmission
+};

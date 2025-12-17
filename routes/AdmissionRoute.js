@@ -1,8 +1,8 @@
 const express=require('express');
-const submitAdmission=require('../controllers/AdmissionController');
+const {submitAdmission}=require('../controllers/AdmissionController');
 const authMiddleware=require('../middlewares/authMiddleware')
 const AdmissionRoute=express.Router();
 
 
-AdmissionRoute.post('/Users',authMiddleware,submitAdmission);
+AdmissionRoute.post('/users',authMiddleware,submitAdmission);
 module.exports=AdmissionRoute;
