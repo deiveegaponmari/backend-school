@@ -2,13 +2,13 @@ const ParentModel = require("../models/ParentModel");
 
 const ParentController = async (req, res) => {
   try {
-    const { parentName, phone, studentName } = req.body;
+    const { parentName, email, studentName } = req.body;
     await ParentModel.create({
       parentName,
-      phone,
+      email,
       studentName,
     });
-    const parents = await ParentModel.find(); // return only phone  fields
+    const parents = await ParentModel.find(); 
     res.status(200).json(parents);
   } catch (error) {
     res.status(500).json({ error: "Failed to load parents" });
@@ -17,7 +17,7 @@ const ParentController = async (req, res) => {
 
 const getParentNumbers=async (req,res) =>{
   try{
-    const parentNumbers=await ParentModel.find({},"phone -_id");
+    const parentNumbers=await ParentModel.find({},"phone -_id"); // return only phone  fields
     res.status(200).json(parentNumbers)
   }
   catch(error){

@@ -2,10 +2,16 @@ const mongoose = require("mongoose");
 
 const AnnouncementSchema = new mongoose.Schema(
   {
-    parents: {
-      type: [String], // store phone numbers
-      required: true,
-    },
+    parents: [
+      {
+        parentId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Users",
+        },
+        email: String,
+        phone: String,
+      },
+    ],
     message: {
       type: String,
       required: true,
@@ -15,9 +21,12 @@ const AnnouncementSchema = new mongoose.Schema(
       enum: ["pending", "sent", "failed"],
       default: "pending",
     },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Users", // admin
+    },
   },
   { timestamps: true }
 );
 
-const AnnouncementModel = mongoose.model("announcement", AnnouncementSchema);
-module.exports = AnnouncementModel;
+module.exports = mongoose.model("Announcement", AnnouncementSchema);

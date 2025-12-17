@@ -8,13 +8,14 @@ const UserSchema = new mongoose.Schema(
     },
     role:{
       type:String,
-      enum:["Admin","User","Student","Parent"],
-      default:"User"
+      enum:["admin","parent"],
+      default:"parent"
     },
     email: {
       type: String,
       unique: true,
       required: true,
+      lowercase:true
     },
     password: {
       type: String,
@@ -32,5 +33,5 @@ this.password=await bcrypt.hash(this.password,salt);
 }
 next();
 })
-const UserModel = mongoose.model("Users", UserSchema);
+const UserModel = mongoose.model("User", UserSchema);
 module.exports = UserModel;

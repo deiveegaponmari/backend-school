@@ -5,7 +5,7 @@ const ParentSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-     phone: {
+     email: {
       type: String,
       required: true,
     },
@@ -17,5 +17,5 @@ const ParentSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const ParentModel = mongoose.model("parents", ParentSchema);
+const ParentModel = mongoose.model("parent", ParentSchema);
 module.exports = ParentModel;

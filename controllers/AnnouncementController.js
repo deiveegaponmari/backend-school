@@ -12,39 +12,56 @@ const AnnouncementController = async (req, res) => {
         .json({ error: "Parents list and message required" });
     }
 
-    const url = `https://graph.facebook.com/v17.0/${process.env.PHONE_NUMBER_ID}/messages`;
+    const newAnnouncement = await EventBookingModel.create({
+      parents,
+      message,
+    });
 
-    for (const phone of parents) {
-      //await sendWhatsAppMessage(phone, message);
-      console.log(`Sending WhatsApp message to ${phone}:`, message);
-     // const url = `https://graph.facebook.com/v17.0/${process.env.PHONE_NUMBER_ID}/messages`;
+    // Brevo setup
+    const client = SibApiV3Sdk.ApiClient.instance;
+    client.authentications["api-key"].apiKey = process.env.BREVO_API_KEY;
 
-      await axios.post(
-        url,
-        {
-          messaging_product: "whatsapp",
-          to: phone,
-          text: { body: message },
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-    }
+    const tranEmailApi = new SibApiV3Sdk.TransactionalEmailsApi();
 
-    await AnnouncementModel.create({ parents, message, status: "sent" });
+    // ✅ User email
+    await tranEmailApi.sendTransacEmail({
+      sender: {
+        email: process.env.BREVO_SENDER_EMAIL,
+        name: "K Selvam Sounds",
+      },
+      to: [{ email }],
+      subject: "Booking Request Received",
+      htmlContent: `
+        <h3>Hello ${name},</h3>
+        <p>Thank you for booking <b>${eventName}</b>.</p>
+        <p>We will contact you shortly.</p>
+      `,
+    });
 
-    return res.status(200).json({
+    // ✅ Admin email
+    await tranEmailApi.sendTransacEmail({
+      sender: {
+        email: process.env.BREVO_SENDER_EMAIL,
+        name: "K Selvam Sounds",
+      },
+      to: [{ email: process.env.BREVO_SENDER_EMAIL }],
+      subject: `New Booking - ${eventName}`,
+      htmlContent: `
+        <p><b>Name:</b> ${name}</p>
+        <p><b>Email:</b> ${email}</p>
+        <p><b>Phone:</b> ${phone}</p>
+        <p><b>Message:</b> ${message}</p>
+      `,
+    });
+
+    res.status(200).json({
       success: true,
-      message: "Announcement sent successfully",
-      //data: newAnnouncement,
+      data: booking,
+      msg: "Booking request sent successfully",
     });
   } catch (error) {
-     console.error("❌ WhatsApp API Error:", error.response?.data || error.message);
-    return res.status(500).json({ error: "Failed to send announcement" });
+    console.error("Event Booking Error:", error);
+    res.status(500).json({ error: "Server error. Please try again later." });
   }
 };
 
