@@ -15,10 +15,10 @@ const ParentController = async (req, res) => {
   }
 };
 
-const getParentNumbers=async (req,res) =>{
+const getParentEmails=async (req,res) =>{
   try{
-    const parentNumbers=await ParentModel.find({},"phone -_id"); // return only phone  fields
-    res.status(200).json(parentNumbers)
+    const parentEmails=await ParentModel.find({},"email -_id"); // return only phone  fields
+    res.status(200).json(parentEmails)
   }
   catch(error){
      res.status(500).json({ error: "Failed to get phone numbers" });
@@ -27,5 +27,5 @@ const getParentNumbers=async (req,res) =>{
 
 module.exports ={
 ParentController,
-getParentNumbers
+getParentEmails
 }
