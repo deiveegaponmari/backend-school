@@ -1,67 +1,72 @@
 const AnnouncementModel = require("../models/AnnouncementModel");
+const ParentModel = require("../models/ParentModel");
 const axios = require("axios");
-require("dotenv").config();
 
 const AnnouncementController = async (req, res) => {
   try {
-    const { parents, message } = req.body; // parents = array of phone numbers
+    const { message } = req.body;
 
-    if (!parents || parents.length === 0 || !message?.trim()) {
-      return res
-        .status(400)
-        .json({ error: "Parents list and message required" });
+    if (!message || !message.trim()) {
+      return res.status(400).json({ error: "Message is required" });
     }
 
-    const newAnnouncement = await EventBookingModel.create({
-      parents,
+    // 1️⃣ Get all parents from DB
+    const parents = await ParentModel.find({}, "email parentName");
+
+    if (parents.length === 0) {
+      return res.status(400).json({ error: "No parents found" });
+    }
+
+    // 2️⃣ Save announcement
+    const announcement = await AnnouncementModel.create({
+      parents: parents.map(p => ({
+        email: p.email
+      })),
       message,
+      status: "pending"
     });
 
-    // Brevo setup
-    const client = SibApiV3Sdk.ApiClient.instance;
-    client.authentications["api-key"].apiKey = process.env.BREVO_API_KEY;
+    // 3️⃣ Send email to each parent
+    await Promise.all(
+      parents.map(parent =>
+        axios.post(
+          "https://api.brevo.com/v3/smtp/email",
+          {
+            sender: {
+              email: process.env.SENDER_EMAIL,
+              name: "Sri Nataraja Primary School",
+            },
+            to: [{ email: parent.email }],
+            subject: "School Announcement",
+            htmlContent: `
+              <p>Dear Parent,</p>
+              <p>${message}</p>
+              <br/>
+              <p>Regards,<br/>Sri Nataraja Primary School</p>
+            `,
+          },
+          {
+            headers: {
+              "api-key": process.env.BREVO_API_KEY,
+              "Content-Type": "application/json",
+            },
+          }
+        )
+      )
+    );
 
-    const tranEmailApi = new SibApiV3Sdk.TransactionalEmailsApi();
-
-    // ✅ User email
-    await tranEmailApi.sendTransacEmail({
-      sender: {
-        email: process.env.BREVO_SENDER_EMAIL,
-        name: "K Selvam Sounds",
-      },
-      to: [{ email }],
-      subject: "Booking Request Received",
-      htmlContent: `
-        <h3>Hello ${name},</h3>
-        <p>Thank you for booking <b>${eventName}</b>.</p>
-        <p>We will contact you shortly.</p>
-      `,
-    });
-
-    // ✅ Admin email
-    await tranEmailApi.sendTransacEmail({
-      sender: {
-        email: process.env.BREVO_SENDER_EMAIL,
-        name: "K Selvam Sounds",
-      },
-      to: [{ email: process.env.BREVO_SENDER_EMAIL }],
-      subject: `New Booking - ${eventName}`,
-      htmlContent: `
-        <p><b>Name:</b> ${name}</p>
-        <p><b>Email:</b> ${email}</p>
-        <p><b>Phone:</b> ${phone}</p>
-        <p><b>Message:</b> ${message}</p>
-      `,
-    });
+    // 4️⃣ Update status
+    announcement.status = "sent";
+    await announcement.save();
 
     res.status(200).json({
       success: true,
-      data: booking,
-      msg: "Booking request sent successfully",
+      message: "Announcement sent to all parents",
     });
+
   } catch (error) {
-    console.error("Event Booking Error:", error);
-    res.status(500).json({ error: "Server error. Please try again later." });
+    console.error(error);
+    res.status(500).json({ error: "Failed to send announcement" });
   }
 };
 
